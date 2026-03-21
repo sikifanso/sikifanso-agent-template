@@ -1,0 +1,26 @@
+apiVersion: v1
+entries:
+  sikifanso-agent-template:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-03-21T08:13:40.944570667Z"
+    description: Isolated namespace template for AI agent workloads on sikifanso clusters
+    digest: 30b1385c89c3de3226e907511fdd20c2913eff9c162a8a7bd9c69907aaccee9f
+    home: https://github.com/sikifanso/sikifanso-agent-template
+    keywords:
+    - sikifanso
+    - agent
+    - isolation
+    - cilium
+    - networkpolicy
+    maintainers:
+    - name: sikifanso
+      url: https://github.com/sikifanso
+    name: sikifanso-agent-template
+    sources:
+    - https://github.com/sikifanso/sikifanso-agent-template
+    type: application
+    urls:
+    - https://sikifanso.github.io/sikifanso-agent-template/sikifanso-agent-template-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-03-21T08:13:40.944199053Z"
