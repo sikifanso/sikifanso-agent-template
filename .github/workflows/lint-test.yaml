@@ -1,0 +1,45 @@
+name: Lint & Test
+
+on:
+  pull_request:
+    paths:
+      - "Chart.yaml"
+      - "values.yaml"
+      - "templates/**"
+      - "tests/**"
+  push:
+    branches: [main]
+
+jobs:
+  lint-test:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.20.0
+
+      - name: Helm lint
+        run: helm lint . --set agent.name=test
+
+      - name: Install helm-unittest
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.0.3
+
+      - name: Run unit tests
+        run: helm unittest .
+
+      - name: Install kubeconform
+        run: |
+          ARCH=$(dpkg --print-architecture)
+          curl -sL "https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-${ARCH}.tar.gz" | tar xz
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate rendered manifests
+        run: |
+          helm template test . --set agent.name=test | \
+            kubeconform --strict --ignore-missing-schemas \
+            --kubernetes-version 1.29.0
