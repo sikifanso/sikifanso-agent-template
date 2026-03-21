@@ -1,0 +1,42 @@
+# -- Agent name (required). Set by sikifanso CLI.
+# @default -- ""
+agent:
+  # -- Agent name, used for namespace and resource naming
+  name: ""
+  # -- CPU request and limit for the agent namespace quota
+  cpu: "500m"
+  # -- Memory request and limit for the agent namespace quota
+  memory: "512Mi"
+  # -- Maximum number of pods in the agent namespace
+  pods: "10"
+
+# -- Services the agent is allowed to reach via Cilium NetworkPolicy.
+# Each entry creates an egress allow rule to the specified namespace and port.
+allowlist:
+  litellm:
+    # -- Namespace where LiteLLM proxy runs
+    namespace: gateway
+    # -- Port for LiteLLM proxy
+    port: 4000
+  qdrant:
+    # -- Namespace where Qdrant runs
+    namespace: rag
+    # -- Port for Qdrant HTTP API
+    port: 6333
+  postgresql:
+    # -- Namespace where PostgreSQL runs
+    namespace: storage
+    # -- Port for PostgreSQL
+    port: 5432
+  valkey:
+    # -- Namespace where Valkey (Redis) runs
+    namespace: storage
+    # -- Port for Valkey
+    port: 6379
+
+# -- DNS configuration for the network policy
+dns:
+  # -- Namespace where CoreDNS runs
+  namespace: kube-system
+  # -- DNS port
+  port: 53

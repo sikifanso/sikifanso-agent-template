@@ -1,0 +1,5 @@
+agent:
+  name: ci-test-agent
+  cpu: "250m"
+  memory: "256Mi"
+  pods: "5"

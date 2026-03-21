@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: agent-quota
+  namespace: {{ include "agent.namespace" . }}
+  labels:
+    {{- include "agent.labels" . | nindent 4 }}
+spec:
+  hard:
+    requests.cpu: {{ .Values.agent.cpu | quote }}
+    requests.memory: {{ .Values.agent.memory | quote }}
+    limits.cpu: {{ .Values.agent.cpu | quote }}
+    limits.memory: {{ .Values.agent.memory | quote }}
+    pods: {{ .Values.agent.pods | quote }}

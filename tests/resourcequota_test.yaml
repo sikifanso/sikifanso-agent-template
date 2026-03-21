@@ -1,0 +1,39 @@
+suite: ResourceQuota
+templates:
+  - resourcequota.yaml
+tests:
+  - it: should create resource quota with default limits
+    set:
+      agent.name: my-agent
+    asserts:
+      - isKind:
+          of: ResourceQuota
+      - equal:
+          path: metadata.namespace
+          value: agent-my-agent
+      - equal:
+          path: spec.hard["requests.cpu"]
+          value: "500m"
+      - equal:
+          path: spec.hard["requests.memory"]
+          value: "512Mi"
+      - equal:
+          path: spec.hard.pods
+          value: "10"
+
+  - it: should respect custom limits
+    set:
+      agent.name: gpu-agent
+      agent.cpu: "2000m"
+      agent.memory: "4Gi"
+      agent.pods: "20"
+    asserts:
+      - equal:
+          path: spec.hard["requests.cpu"]
+          value: "2000m"
+      - equal:
+          path: spec.hard["requests.memory"]
+          value: "4Gi"
+      - equal:
+          path: spec.hard.pods
+          value: "20"

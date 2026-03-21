@@ -1,0 +1,29 @@
+suite: Namespace
+templates:
+  - namespace.yaml
+tests:
+  - it: should create namespace with agent- prefix
+    set:
+      agent.name: my-agent
+    asserts:
+      - isKind:
+          of: Namespace
+      - equal:
+          path: metadata.name
+          value: agent-my-agent
+
+  - it: should have agent labels
+    set:
+      agent.name: my-agent
+    asserts:
+      - equal:
+          path: metadata.labels["sikifanso.io/agent"]
+          value: "true"
+      - equal:
+          path: metadata.labels["sikifanso.io/agent-name"]
+          value: my-agent
+
+  - it: should fail without agent name
+    asserts:
+      - failedTemplate:
+          errorMessage: "agent.name is required"

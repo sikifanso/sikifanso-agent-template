@@ -1,0 +1,44 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: agent-isolation
+  namespace: {{ include "agent.namespace" . }}
+  labels:
+    {{- include "agent.labels" . | nindent 4 }}
+spec:
+  endpointSelector: {}
+
+  # Deny all egress by default — block internet and K8s API access
+  egressDeny:
+    - toEntities:
+        - world
+        - kube-apiserver
+
+  # Allow only specific cluster-internal services
+  egress:
+    # DNS resolution (required for service discovery)
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: {{ .Values.dns.namespace }}
+      toPorts:
+        - ports:
+            - port: {{ .Values.dns.port | quote }}
+              protocol: UDP
+            - port: {{ .Values.dns.port | quote }}
+              protocol: TCP
+
+    {{- range $name, $svc := .Values.allowlist }}
+    # {{ $name }}
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: {{ $svc.namespace }}
+      toPorts:
+        - ports:
+            - port: {{ $svc.port | quote }}
+              protocol: TCP
+    {{- end }}
+
+  # Allow all ingress within the agent namespace (agent pods can talk to each other)
+  ingress:
+    - fromEndpoints:
+        - {}

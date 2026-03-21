@@ -1,0 +1,81 @@
+suite: CiliumNetworkPolicy
+templates:
+  - networkpolicy.yaml
+tests:
+  - it: should create CiliumNetworkPolicy in agent namespace
+    set:
+      agent.name: my-agent
+    asserts:
+      - isKind:
+          of: CiliumNetworkPolicy
+      - equal:
+          path: metadata.namespace
+          value: agent-my-agent
+
+  - it: should deny egress to world and kube-apiserver
+    set:
+      agent.name: my-agent
+    asserts:
+      - contains:
+          path: spec.egressDeny
+          content:
+            toEntities:
+              - world
+              - kube-apiserver
+
+  - it: should allow DNS egress
+    set:
+      agent.name: my-agent
+    asserts:
+      - contains:
+          path: spec.egress
+          content:
+            toEndpoints:
+              - matchLabels:
+                  k8s:io.kubernetes.pod.namespace: kube-system
+            toPorts:
+              - ports:
+                  - port: "53"
+                    protocol: UDP
+                  - port: "53"
+                    protocol: TCP
+
+  - it: should allow litellm egress on port 4000
+    set:
+      agent.name: my-agent
+    asserts:
+      - contains:
+          path: spec.egress
+          content:
+            toEndpoints:
+              - matchLabels:
+                  k8s:io.kubernetes.pod.namespace: gateway
+            toPorts:
+              - ports:
+                  - port: "4000"
+                    protocol: TCP
+
+  - it: should allow qdrant egress on port 6333
+    set:
+      agent.name: my-agent
+    asserts:
+      - contains:
+          path: spec.egress
+          content:
+            toEndpoints:
+              - matchLabels:
+                  k8s:io.kubernetes.pod.namespace: rag
+            toPorts:
+              - ports:
+                  - port: "6333"
+                    protocol: TCP
+
+  - it: should allow intra-namespace ingress
+    set:
+      agent.name: my-agent
+    asserts:
+      - contains:
+          path: spec.ingress
+          content:
+            fromEndpoints:
+              - {}
