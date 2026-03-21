@@ -13,13 +13,15 @@ jobs:
   release:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - uses: azure/setup-helm@v4
         with:
           version: v3.20.0
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
       - name: Helm lint
         run: helm lint . --set agent.name=test
@@ -31,13 +33,37 @@ jobs:
         run: helm unittest .
 
       - name: Package chart
-        run: |
-          mkdir -p .cr-release-packages
-          helm package . -d .cr-release-packages
+        run: helm package .
 
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.7.0
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
         with:
-          skip_packaging: true
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          files: sikifanso-agent-template-*.tgz
+          generate_release_notes: true
+
+      - name: Publish to GitHub Pages
+        run: |
+          # Create gh-pages content
+          mkdir -p gh-pages
+          cp sikifanso-agent-template-*.tgz gh-pages/
+
+          # Fetch existing index if gh-pages branch exists
+          if git ls-remote --heads origin gh-pages | grep -q gh-pages; then
+            git fetch origin gh-pages
+            git show origin/gh-pages:index.yaml > gh-pages/index.yaml 2>/dev/null || true
+          fi
+
+          # Merge new chart into index
+          helm repo index gh-pages --url https://sikifanso.github.io/sikifanso-agent-template --merge gh-pages/index.yaml 2>/dev/null \
+            || helm repo index gh-pages --url https://sikifanso.github.io/sikifanso-agent-template
+
+          # Push to gh-pages branch
+          cd gh-pages
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Release chart $(ls *.tgz | head -1)"
+          git branch -M gh-pages
+          git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          git push -f origin gh-pages
