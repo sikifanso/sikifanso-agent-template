@@ -36,6 +36,8 @@ tests:
       agent.memoryLimit: "8Gi"
       agent.pods: "20"
     asserts:
+      - isKind:
+          of: ResourceQuota
       - equal:
           path: spec.hard["requests.cpu"]
           value: "500m"
