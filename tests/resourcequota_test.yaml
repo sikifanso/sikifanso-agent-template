@@ -2,7 +2,7 @@ suite: ResourceQuota
 templates:
   - resourcequota.yaml
 tests:
-  - it: should create resource quota with default limits
+  - it: should create resource quota with default values allowing Burstable QoS
     set:
       agent.name: my-agent
     asserts:
@@ -13,27 +13,41 @@ tests:
           value: agent-my-agent
       - equal:
           path: spec.hard["requests.cpu"]
-          value: "500m"
+          value: "250m"
       - equal:
           path: spec.hard["requests.memory"]
-          value: "512Mi"
+          value: "256Mi"
+      - equal:
+          path: spec.hard["limits.cpu"]
+          value: "1000m"
+      - equal:
+          path: spec.hard["limits.memory"]
+          value: "1Gi"
       - equal:
           path: spec.hard.pods
           value: "10"
 
-  - it: should respect custom limits
+  - it: should allow separate request and limit overrides
     set:
       agent.name: gpu-agent
-      agent.cpu: "2000m"
-      agent.memory: "4Gi"
+      agent.cpuRequest: "500m"
+      agent.cpuLimit: "4000m"
+      agent.memoryRequest: "1Gi"
+      agent.memoryLimit: "8Gi"
       agent.pods: "20"
     asserts:
       - equal:
           path: spec.hard["requests.cpu"]
-          value: "2000m"
+          value: "500m"
       - equal:
           path: spec.hard["requests.memory"]
-          value: "4Gi"
+          value: "1Gi"
+      - equal:
+          path: spec.hard["limits.cpu"]
+          value: "4000m"
+      - equal:
+          path: spec.hard["limits.memory"]
+          value: "8Gi"
       - equal:
           path: spec.hard.pods
           value: "20"

@@ -7,8 +7,8 @@ metadata:
     {{- include "agent.labels" . | nindent 4 }}
 spec:
   hard:
-    requests.cpu: {{ .Values.agent.cpu | quote }}
-    requests.memory: {{ .Values.agent.memory | quote }}
-    limits.cpu: {{ .Values.agent.cpu | quote }}
-    limits.memory: {{ .Values.agent.memory | quote }}
+    requests.cpu: {{ .Values.agent.cpuRequest | quote }}
+    requests.memory: {{ .Values.agent.memoryRequest | quote }}
+    limits.cpu: {{ .Values.agent.cpuLimit | quote }}
+    limits.memory: {{ .Values.agent.memoryLimit | quote }}
     pods: {{ .Values.agent.pods | quote }}
