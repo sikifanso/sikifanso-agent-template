@@ -1,3 +1,9 @@
+{{/*
+  Validation note: request ≤ limit is enforced by the sikifanso CLI and MCP server
+  before values reach this template. Helm cannot natively compare K8s resource
+  quantities (e.g. "250m" vs "1Gi"), so validation lives in Go code
+  (internal/agent/agent.go — validateQuotas).
+*/}}
 apiVersion: v1
 kind: ResourceQuota
 metadata:
@@ -7,8 +13,8 @@ metadata:
     {{- include "agent.labels" . | nindent 4 }}
 spec:
   hard:
-    requests.cpu: {{ .Values.agent.cpu | quote }}
-    requests.memory: {{ .Values.agent.memory | quote }}
-    limits.cpu: {{ .Values.agent.cpu | quote }}
-    limits.memory: {{ .Values.agent.memory | quote }}
+    requests.cpu: {{ .Values.agent.cpuRequest | quote }}
+    requests.memory: {{ .Values.agent.memoryRequest | quote }}
+    limits.cpu: {{ .Values.agent.cpuLimit | quote }}
+    limits.memory: {{ .Values.agent.memoryLimit | quote }}
     pods: {{ .Values.agent.pods | quote }}

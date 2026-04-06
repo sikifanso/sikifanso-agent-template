@@ -1,5 +1,7 @@
 agent:
   name: ci-test-agent
-  cpu: "250m"
-  memory: "256Mi"
+  cpuRequest: "125m"
+  cpuLimit: "500m"
+  memoryRequest: "128Mi"
+  memoryLimit: "512Mi"
   pods: "5"

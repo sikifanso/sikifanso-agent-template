@@ -3,10 +3,14 @@
 agent:
   # -- Agent name, used for namespace and resource naming
   name: ""
-  # -- CPU request and limit for the agent namespace quota
-  cpu: "500m"
-  # -- Memory request and limit for the agent namespace quota
-  memory: "512Mi"
+  # -- CPU request quota (guaranteed allocation across all pods in namespace)
+  cpuRequest: "250m"
+  # -- CPU limit quota (burst ceiling across all pods in namespace)
+  cpuLimit: "1000m"
+  # -- Memory request quota (guaranteed allocation across all pods in namespace)
+  memoryRequest: "256Mi"
+  # -- Memory limit quota (burst ceiling across all pods in namespace)
+  memoryLimit: "1Gi"
   # -- Maximum number of pods in the agent namespace
   pods: "10"
 
